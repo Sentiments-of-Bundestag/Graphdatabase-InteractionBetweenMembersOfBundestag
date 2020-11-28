@@ -1,0 +1,6 @@
+man muss sich im htw-netz befinden
+
+user: neo4j
+db: neo4j://infosys5.f4.htw-berlin.de:7687
+pw: decide-nissan-pegasus-vertigo-tahiti-1341
+db: neo4j - default
