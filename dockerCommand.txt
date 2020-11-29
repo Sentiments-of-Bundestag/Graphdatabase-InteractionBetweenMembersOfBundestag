@@ -1,0 +1,13 @@
+sudo docker run \
+    --name testneo4j \
+    -d \
+    --publish=7474:7474 --publish=7687:7687 \
+    --env NEO4J_AUTH=neo4j/super-super-secret-password \
+    neo4j:latest
+
+user: neo4j
+pw: super-super-secret-password
+graphdatenbankname: neo4j - default
+url: neo4j://141.45.146.164
+
+CREATE USER readUser SET PASSWORD "readUserPw"

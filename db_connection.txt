@@ -1,6 +1,4 @@
-man muss sich im htw-netz befinden
-
 user: neo4j
-db: neo4j://infosys5.f4.htw-berlin.de:7687
-pw: decide-nissan-pegasus-vertigo-tahiti-1341
-db: neo4j - default
+pw: super-super-secret-password
+graphdatenbankname: neo4j - default
+url: neo4j://141.45.146.164
