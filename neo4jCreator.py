@@ -49,19 +49,22 @@ class Commentary(StructuredNode):
     senderFaction = RelationshipFrom('Faction', 'FROMFACTION')
     session = Relationship('ParliamentSession', 'SESSION')
 
-def find_relevant_title(text) -> title:
-    if 'a. D.' in text and 'Bundesminster' in text:
-        return 'Bundesminster a. D.'
-    if 'Bundesminster' in text:
-        return 'Bundesminster'
-    if 'Vizepräsident' in text:
-        return 'Vizepräsident'
+def find_relevant_title(text):
     if 'Bundeskanzler' in text:
         return 'Bundeskanzler'
     if 'Bundestagspräsident' in text:
         return 'Bundestagspräsident'
     if 'Bundespräsident' in text:
         return 'Bundespräsident'
+    if 'a. D.' in text and 'Bundesminister' in text:
+        return 'Bundesminister a. D.'
+    if 'Bundesminister' in text:
+        return 'Bundesminister'
+    if 'Vizepräsident' in text and 'a. D.' in text:
+        return 'Vizepräsident a. D.'
+    if 'Vizepräsident' in text:
+        return 'Vizepräsident'
+    
 
 
 def test_function():
