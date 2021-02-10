@@ -49,6 +49,21 @@ class Commentary(StructuredNode):
     senderFaction = RelationshipFrom('Faction', 'FROMFACTION')
     session = Relationship('ParliamentSession', 'SESSION')
 
+def find_relevant_title(text) -> title:
+    if 'a. D.' in text and 'Bundesminster' in text:
+        return 'Bundesminster a. D.'
+    if 'Bundesminster' in text:
+        return 'Bundesminster'
+    if 'Vizepräsident' in text:
+        return 'Vizepräsident'
+    if 'Bundeskanzler' in text:
+        return 'Bundeskanzler'
+    if 'Bundestagspräsident' in text:
+        return 'Bundestagspräsident'
+    if 'Bundespräsident' in text:
+        return 'Bundespräsident'
+
+
 def test_function():
     print("Started build up of neo4j")
     db_name_mongo = "sentiment"
@@ -67,7 +82,7 @@ def test_function():
         queryResult = databaseMongo.get_collection(i).find_one()
 
         """
-        'speakers' : {'faction', 'first_name', 'last_name', 'full_role', 'role'}
+        'speakers' : {'faction', 'first_name', 'last_name', job_title}
         'person' : {'speakerId', 'name', 'role'}
         """
 
@@ -77,8 +92,8 @@ def test_function():
             speaker = queryResult['speakers'][keyString]
             role = ''
 
-            if 'title' in speaker:
-                role = speaker['title']
+            if 'job_title' in speaker:
+                role = find_relevant_title(speaker['job_title'])
 
             neo4j_persons.append({'speakerId' : keyString, 'name' : (speaker['forename'] + ' ' + speaker['surname']).strip(), 'role' : role, 'factionId': queryResult['speakers'][keyString]['memberships'][-1][2]})
 
@@ -117,19 +132,12 @@ def test_function():
                 interaction['psessionId'] = parliamentSession['session_id']
                 unique_interactions.append(interaction)
 
-    # pprint.pprint(unique_interactions)
-    # pprint.pprint(unique_sessions)
-    # pprint.pprint(unique_persons)
-    # pprint.pprint(len(unique_persons))
-    # pprint.pprint(unique_factions)
-
     mongo.close()
 
     ### neomodel class setup
 
 
     config.DATABASE_URL = 'bolt://neo4j:super-super-secret-password@141.45.146.164:7687'
-    # config.DATABASE_URL = 'bolt://neo4j:test@localhost:7687'
 
     ### neo4j inserts
 
@@ -143,6 +151,8 @@ def test_function():
     all_psession = {}
 
     print('Creating Faction nodes')
+    
+    noFaction = None
 
     with alive_bar(len(unique_factions)) as bar:
         for factionKey in unique_factions:
@@ -150,6 +160,9 @@ def test_function():
                 factionDBO = Faction(factionId = unique_factions[factionKey]['id'], name = unique_factions[factionKey]['name']).save()
                 factionDBO.refresh()
                 all_factions[factionDBO.factionId] = factionDBO
+
+                if factionDBO.name == 'Fraktionslos':
+                    noFaction = factionDBO
             bar()
 
     print('Creating Person nodes')
@@ -163,7 +176,8 @@ def test_function():
 
                 if all_factions.get(unique_persons[personKey]['factionId'], None) is not None:
                     relation = personDBO.faction.connect(all_factions[unique_persons[personKey]['factionId']]) #relationship person to faction
-
+                else:
+                    relation = personDBO.faction.connect(noFaction)
                 all_persons[personDBO.speakerId] = personDBO
                 bar()
 
@@ -176,11 +190,6 @@ def test_function():
                 psessionDBO.refresh()
                 all_psession[psessionDBO.sessionId] = psessionDBO
             bar()
-
-
-    print('done')
-
-    #%%
 
     print('Creating interaction nodes')
 
