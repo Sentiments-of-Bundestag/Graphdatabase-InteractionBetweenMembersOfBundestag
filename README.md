@@ -43,10 +43,12 @@ sudo docker run \
 HTTP-GET: <your-server-ip>:5000/api/v1/notify
 ```
 
+- Adjust ip of the mongodb and the neo4j in the skript to your connection-endpoints
+
 - Start flask-server
 ```
 pip install -r requirements.txt
-export FLASK_APP=./remoteNeo4j/neo4jCreator.py
+export FLASK_APP=./neo4jCreator.py
 python3 -m flask run -h 0.0.0.0
 HTTP:GET (e.g. via web-browser): http://<your-server-ip>:5000/api/v1/notify
 ```
@@ -57,8 +59,10 @@ HTTP:GET (e.g. via web-browser): http://<your-server-ip>:5000/api/v1/notify
   - on same host: around 30min (for around 250k comments between persons)
   - on different hosts: around 10h (for around 250k comments between persons)
 - runtime: around 25min (neo4j-db and flask-server on same host)
+- database insights can be viewed via Neo4j-Desktop
 
 ## Build with
+- Neo4j-Desktop
 - Flask
 - alive-progress
 - neomodel
